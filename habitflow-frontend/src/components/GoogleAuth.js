@@ -13,7 +13,7 @@ const GoogleAuth = () => {
         const userInfo = jwtDecode(token);
 
         console.log("User Info:", userInfo);
-        // console.log(JSON.parse(localStorage.getItem("user")));
+        console.log(JSON.parse(localStorage.getItem("user")));
 
         try {
             // Send Google info to Django to create/get user & return JWT

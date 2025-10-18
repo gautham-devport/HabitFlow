@@ -3,6 +3,7 @@ import AiCoach from "./AiCoach";
 import TrackHabits from "./TrackHabits";
 import Profile from "./Profile";
 import styled from "styled-components";
+import AiRoutine from "./AiRoutine";
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState(
@@ -29,6 +30,12 @@ const Dashboard = () => {
                     Track Habits
                 </Tab>
                 <Tab
+                    active={activeTab === "routine"}
+                    onClick={() => setActiveTab("routine")}
+                >
+                    Smart Routine
+                </Tab>
+                <Tab
                     active={activeTab === "profile"}
                     onClick={() => setActiveTab("profile")}
                 >
@@ -39,6 +46,7 @@ const Dashboard = () => {
             <Content>
                 {activeTab === "ai" && <AiCoach />}
                 {activeTab === "track" && <TrackHabits />}
+                {activeTab === "routine" && <AiRoutine />}
                 {activeTab === "profile" && <Profile />}
             </Content>
         </Container>
@@ -61,17 +69,18 @@ const Header = styled.div`
     display: flex;
     align-items: center;
     gap: 18px;
-    background-color: white;
+    background-color: #ffffff91;
     padding: 6px 6px;
     z-index: 999;
     border: 1px solid #00000012;
     border-radius: 40px;
+    backdrop-filter: blur(9px);
 `;
 
 const Tab = styled.div`
     cursor: default;
     font-weight: bold;
-    color: ${(props) => (props.active ? "#000" : "#474747")};
+    color: ${(props) => (props.active ? "#000" : "#3c3c3cff")};
     background-color: ${(props) => (props.active ? "#c1ff75" : "transparent")};
     border-radius: 40px;
     padding: 14px 16px;

@@ -137,7 +137,7 @@ SIMPLE_JWT = {
 
 
 
-HUGGINGFACE_API_KEY = "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"
+HUGGINGFACE_API_KEY = "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"
 
 
 

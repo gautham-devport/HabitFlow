@@ -103,3 +103,96 @@ class AICoachView(APIView):
 
         except requests.exceptions.RequestException as e:
             return Response({"error": f"Hugging Face API error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+class AIRoutineView(APIView):
+    """
+    POST {"habits": ["Drink Water", "Daily Step Goal", "Meditation"]}
+    Returns a full-day smart routine + AI motivational advice.
+    """
+
+    def post(self, request):
+        habits = request.data.get("habits", [])
+        if not habits:
+            return Response({"error": "No habits provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        habit_titles = ", ".join(habits)
+
+        prompt = f"""
+        You are an expert AI daily planner. The user’s habits are: {habit_titles}. "
+        Always generate a full-day realistic schedule 
+        "even if there is only one habit.
+        "If there’s just one habit, design the rest of the day around that theme with related activities.
+        Arrange them between 6:00 AM and 10:00 PM.
+
+        1️⃣ First, output a timeline with exact (12 hours format) times and activities in **JSON format**:
+        [
+          {{"time": "7:00 AM", "activity": "Drink Water"}},
+          {{"time": "7:30 AM", "activity": "Meditation"}}
+        ]
+
+        2️⃣ After that, write a short motivational paragraph (AI Advice) 
+        explaining how to follow this routine and why it’s effective.
+
+        Format example:
+        ---
+        [JSON routine here]
+
+        ---
+        AI Advice:
+        (Your short paragraph)
+        """
+
+        API_URL = "https://router.huggingface.co/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "deepseek-ai/DeepSeek-V3.2-Exp:novita",
+            "messages": [
+                {"role": "system", "content": "You are an AI routine coach that gives structured schedules and motivational explanations."},
+                {"role": "user", "content": prompt}
+            ],
+            "max_new_tokens": 700
+        }
+
+        try:
+            response = requests.post(API_URL, headers=headers, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            chat_text = result["choices"][0]["message"]["content"]
+
+            # --- Extract JSON and advice ---
+            json_part = ""
+            advice_part = ""
+            if "---" in chat_text:
+                parts = chat_text.split("---")
+                json_part = parts[0].strip()
+                advice_part = parts[-1].replace("AI Advice:", "").strip()
+            else:
+                json_part = chat_text
+
+            # Try to parse the JSON
+            try:
+                routine = json.loads(json_part)
+            except json.JSONDecodeError:
+                # fallback: make a list from habits if AI returns text instead of JSON
+                routine = [{"time": f"{7+i}:00 AM", "activity": h} for i, h in enumerate(habits)]
+
+            # Return both structured data + text
+            return Response({
+                "routine": routine,
+                "advice": advice_part or "Stay consistent and mindful while following your routine."
+            })
+
+        except requests.exceptions.RequestException as e:
+            return Response(
+                {"error": f"Hugging Face API error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

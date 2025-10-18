@@ -54,6 +54,8 @@ const Profile = () => {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
         localStorage.removeItem("activeTab");
+        localStorage.removeItem("aiRoutine");
+        localStorage.removeItem("aiAdvice");
         window.location.href = "/";
     };
 
