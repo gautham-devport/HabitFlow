@@ -7,7 +7,7 @@ const AiRoutine = () => {
     const [advice, setAdvice] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // ✅ Load saved data on mount
+    // ✅ Load saved data on mount (for persistence)
     useEffect(() => {
         const savedRoutine = localStorage.getItem("aiRoutine");
         const savedAdvice = localStorage.getItem("aiAdvice");
@@ -17,8 +17,13 @@ const AiRoutine = () => {
     }, []);
 
     const generateRoutine = async () => {
-        setLoading(true);
+        // ✅ Clear old routine/advice when user clicks generate
+        setRoutine([]);
         setAdvice("");
+        localStorage.removeItem("aiRoutine");
+        localStorage.removeItem("aiAdvice");
+
+        setLoading(true);
         try {
             const habitRes = await axios.get(
                 "http://127.0.0.1:8000/api/habits/",
@@ -40,10 +45,11 @@ const AiRoutine = () => {
                 }
             );
 
+            // ✅ Set new routine and advice
             setRoutine(aiRes.data.routine);
             setAdvice(aiRes.data.advice);
 
-            // ✅ Save in localStorage
+            // ✅ Save new routine and advice in localStorage
             localStorage.setItem(
                 "aiRoutine",
                 JSON.stringify(aiRes.data.routine)
@@ -51,8 +57,9 @@ const AiRoutine = () => {
             localStorage.setItem("aiAdvice", aiRes.data.advice);
         } catch (err) {
             console.error("Error generating routine:", err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
@@ -96,16 +103,14 @@ const AiRoutine = () => {
             </Banner>
 
             {routine.length > 0 && (
-                <>
-                    <RoutineList>
-                        {routine.map((r, i) => (
-                            <RoutineCard key={i}>
-                                <Time>{r.time}</Time>
-                                <Activity>{r.activity}</Activity>
-                            </RoutineCard>
-                        ))}
-                    </RoutineList>
-                </>
+                <RoutineList>
+                    {routine.map((r, i) => (
+                        <RoutineCard key={i}>
+                            <Time>{r.time}</Time>
+                            <Activity>{r.activity}</Activity>
+                        </RoutineCard>
+                    ))}
+                </RoutineList>
             )}
 
             {advice && (

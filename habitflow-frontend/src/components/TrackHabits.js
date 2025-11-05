@@ -171,7 +171,7 @@ const HabitContainer = styled.div`
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
-    height: 82.5vh;
+    height: 83.4vh;
     overflow-x: auto;
     padding: 5px 14px;
     background: #dae4dc;
@@ -181,12 +181,12 @@ const HabitContainer = styled.div`
 
 const HabitCard = styled.div`
     width: 49%;
-    height: 269px;
+    height: 290px;
     flex: 0 0 auto;
     justify-content: space-between;
     box-shadow: 2px 4px 12px #00000014;
     border-radius: 34px;
-    margin: 10px 0;
+    margin: 8px 0;
     padding: 0px 26px;
     text-align: left;
     background-color: #f9f9f9;
